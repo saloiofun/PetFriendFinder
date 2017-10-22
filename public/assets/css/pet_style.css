@@ -1,7 +1,3 @@
-.navbar-nav {
-  flex-direction: row;
-}
-
 button:hover {
   cursor: pointer;
 }
@@ -10,10 +6,22 @@ button:hover {
   border-radius: 1.25rem!important;
 }
 
+.navBar-link:hover {
+  color: white !important;
+}
+
 .navBar-link {
   margin-left: .5rem;
   padding-right: .5rem !important;
   padding-left: .5rem !important;
+}
+
+.navBar-rml {
+  margin-left: 0 !important;
+}
+
+.outline-active {
+  color: white !important;
 }
 
 .pet-masthead {
@@ -39,4 +47,14 @@ button:hover {
 
 .pet-text-firebrick {
   color: #c92930;
+}
+
+
+/* Small devices (landscape phones, less than 768px) */
+
+@media (max-width: 767px) {
+  .navBar-link {
+    margin-left: 0 !important;
+    margin-bottom: .5rem!important;
+  }
 }

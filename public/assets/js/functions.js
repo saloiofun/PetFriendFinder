@@ -22,58 +22,62 @@ $(document).ready(function () {
         $.get('/api/users-pets/' + userId).done(function (data) {
             console.log(data);
             for (pet in data) {
-                var $col = $('<div>', {
-                    class: 'col-md-6'
-                });
-                var $form = $('<form>', {
-                    class: 'add-friend',
-                    method: 'post'
-                });
-                var $card = $('<div>', {
-                    class: 'card float-right'
-                });
-                var $cardImage = $('<img>', {
-                    src: data[pet].picture,
-                    class: 'card-img-top',
-                    alt: data[pet].name
-                });
-                var $cardBody = $('<div>', {
-                    class: 'card-body'
-                });
-                var $cardTitle = $('<h4>', {
-                    class: 'card-title'
-                });
-                var $friendPetId = $('<input>', {
-                    type: 'hidden',
-                    name: 'friendPetId',
-                    class: 'friendPetId',
-                    value: $('#FriendPetId').val()
-                });
-                var $myPetId = $('<input>', {
-                    type: 'hidden',
-                    name: 'myPetId',
-                    class: 'myPetId',
-                    value: data[pet].id
-                });
+                var friendPetId = $('#FriendPetId').val();
 
-                var $makeFriendship = $('<input>', {
-                    type: 'submit',
-                    value: 'Add Friend',
-                    class: 'MatchFriend'
-                });
+                if (friendPetId != data[pet].id) {
+                    var $col = $('<div>', {
+                        class: 'col-md-6'
+                    });
+                    var $form = $('<form>', {
+                        class: 'add-friend',
+                        method: 'post'
+                    });
+                    var $card = $('<div>', {
+                        class: 'card float-right'
+                    });
+                    var $cardImage = $('<img>', {
+                        src: data[pet].picture,
+                        class: 'card-img-top',
+                        alt: data[pet].name
+                    });
+                    var $cardBody = $('<div>', {
+                        class: 'card-body'
+                    });
+                    var $cardTitle = $('<h4>', {
+                        class: 'card-title'
+                    });
+                    var $friendPetId = $('<input>', {
+                        type: 'hidden',
+                        name: 'friendPetId',
+                        class: 'friendPetId',
+                        value: $('#FriendPetId').val()
+                    });
+                    var $myPetId = $('<input>', {
+                        type: 'hidden',
+                        name: 'myPetId',
+                        class: 'myPetId',
+                        value: data[pet].id
+                    });
 
-                $form.append($card);
-                $card.append($cardImage);
-                $card.append($cardBody);
-                $cardBody.append($cardTitle);
-                $cardTitle.html(data[pet].name);
-                $cardBody.append($friendPetId);
-                $cardBody.append($myPetId);
-                $cardBody.append($makeFriendship);
+                    var $makeFriendship = $('<input>', {
+                        type: 'submit',
+                        value: 'Add Friend',
+                        class: 'MatchFriend'
+                    });
 
-                $col.append($form);
+                    $form.append($card);
+                    $card.append($cardImage);
+                    $card.append($cardBody);
+                    $cardBody.append($cardTitle);
+                    $cardTitle.html(data[pet].name);
+                    $cardBody.append($friendPetId);
+                    $cardBody.append($myPetId);
+                    $cardBody.append($makeFriendship);
 
-                $('#AsyncFriends').append($col);
+                    $col.append($form);
+
+                    $('#AsyncFriends').append($col);
+                }
             }
             $('.add-friend').each(function () {
                 var friendPetId = $(this).find('.friendPetId').val();
@@ -102,7 +106,7 @@ $(document).ready(function () {
         getUsersPets(userId);
     });
 
-    $('#SubmitPost').on('click', function(event) {
+    $('#SubmitPost').on('click', function (event) {
         event.preventDefault();
         var ownerId = $('#OwnerId').val();
         var postBody = $('#PostBody').val();
@@ -110,7 +114,7 @@ $(document).ready(function () {
         $.post('/api/posts', {
             OwnerId: ownerId,
             body: postBody
-        }).done(function(response) {
+        }).done(function (response) {
             var $card = $('<div>', {
                 class: 'card mb-3 w-100'
             });
@@ -134,26 +138,44 @@ $(document).ready(function () {
             $('#Posts').prepend($card);
             $('#PostBody').val('');
         });
-        
+
     });
 
-    $('.delete-pet').on('click', function(event) {
+    $('.delete-pet').on('click', function (event) {
         event.preventDefault();
         event.stopPropagation();
         var id = $(this).attr('data-id');
 
         var deletePet = confirm('Are you sure you want to delete your pet?');
 
-        if(deletePet) {
+        if (deletePet) {
             $.ajax({
                 method: 'DELETE',
                 url: '/api/delete-pet/' + id
-            }).done(function(response) {
+            }).done(function (response) {
                 location.reload();
             });
         }
     });
-    
+
+    function getPetInfo(petId) {
+        $.get('/api/pet/' + petId).done(function (data) {
+            $(".pet-data").remove();
+            $('#edit-pet-form').append('<input type="hidden" class="pet-data" name="id" value="' + data.id + '" />');
+            $('#UpdatePetImg-form').append('<input type="hidden" class="pet-data" name="id" value="' + data.id + '" />');
+            $('#UpdatePetImg-form').append('<input type="hidden" class="pet-data" name="name" value="' + data.name + '" />');
+            $('#pet-name').val(data.name);
+            $('#pet-type').val(data.type);
+            $('#pet-breed').val(data.breed);
+            $('#pet-age').val(data.age);
+            $('#pet-bio').val(data.bio);
+        });
+    }
+
+    $('.edit-pet').on('click', function () {
+        var petId = $(this).attr('data-id');
+        getPetInfo(petId);
+    });
 
     $('#cancel-edit').on('click', function () {
         location.reload();
@@ -164,10 +186,12 @@ $(document).ready(function () {
         case '/profile':
         case '/profile/':
             $('#view-post').addClass('active');
+            $('#my-profile').addClass('active outline-active');
             break;
         case '/profile/view-pets':
         case '/profile/view-pets/':
             $('#view-pets').addClass('active');
+            $('#my-profile').addClass('active outline-active');
             break;
         case '/profile/view-friends':
         case '/profile/view-friends/':
@@ -176,18 +200,19 @@ $(document).ready(function () {
         case '/profile/edit-profile':
         case '/profile/edit-profile/':
             $('#edit-profile').addClass('active');
+            $('#my-profile').addClass('active outline-active');
             break;
         case '/home':
         case '/home/':
             $('#feed').addClass('active');
             break;
-        case '/find-pet-friend':
-        case '/find-pet-friend/':
-            $('#find-pet-friend').addClass('active');
+        case '/pets':
+        case '/pets/':
+            $('#find-pets').addClass('active outline-active');
             break;
-        case '/message':
-        case '/message/':
-            $('#message').addClass('active');
+        case '/owners':
+        case '/owners/':
+            $('#find-owners').addClass('active outline-active');
             break;
     }
 
